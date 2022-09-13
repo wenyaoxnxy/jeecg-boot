@@ -13,6 +13,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.code.entity.ReviewCode;
+import org.jeecg.modules.design.entity.ReviewDesign;
 import org.jeecg.modules.publish.entity.ReviewPublish;
 import org.jeecg.modules.review.entity.ReviewRecord;
 import org.jeecg.modules.review.handle.IReviewRecordHandle;
@@ -196,4 +197,19 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 		 ReviewPublish reviewPublish = reviewRecordHandle.perCheckPublishReview(reviewRecord);
 		 return Result.OK(reviewPublish);
 	 }
+
+	 /**
+	  * 发起概设评审
+	  *
+	  * @param addDesignReview
+	  * @return
+	  */
+	 @AutoLog(value = "评审记录登记表-发起概设评审")
+	 @ApiOperation(value="评审记录登记表-发起概设评审", notes="评审记录登记表-发起概设评审")
+	 @PostMapping(value = "/addDesignReview")
+	 public Result<?> addDesignReview(@RequestBody ReviewRecord reviewRecord) {
+		 ReviewDesign reviewDesign = reviewRecordHandle.perDesignReview(reviewRecord);
+		 return Result.OK(reviewDesign);
+	 }
+
 }

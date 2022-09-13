@@ -10,6 +10,8 @@ import org.jeecg.modules.code.entity.ReviewCodeChecklistResult;
 import org.jeecg.modules.code.service.IReviewCodeChecklistResultService;
 import org.jeecg.modules.code.service.IReviewCodeDetailService;
 import org.jeecg.modules.code.service.IReviewCodeService;
+import org.jeecg.modules.design.entity.ReviewDesign;
+import org.jeecg.modules.design.service.IReviewDesignService;
 import org.jeecg.modules.publish.entity.ReviewPublish;
 import org.jeecg.modules.publish.entity.ReviewPublishChecklistResult;
 import org.jeecg.modules.publish.service.IReviewPublishChecklistResultService;
@@ -65,6 +67,10 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
 
     @Autowired
     private IPublishReviewChecklistRulesService publishReviewChecklistRulesService;
+
+    @Autowired
+    private IReviewDesignService reviewDesignService;
+
 
     @Override
     @Transactional
@@ -134,5 +140,32 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
         reviewRecordService.updateById(record);
 
         return reviewPublish;
+    }
+
+    @Override
+    public ReviewDesign perDesignReview(ReviewRecord reviewRecord) {
+        if(StringUtils.isAnyEmpty(reviewRecord.getXqNumber(),reviewRecord.getKjxqNum(),reviewRecord.getIttaskNum())){
+            throw new JeecgBootException("输入需求内容为空");
+        }
+        QueryWrapper<ReviewDesign> queryWrapper = new QueryWrapper<ReviewDesign>();
+        queryWrapper.lambda().eq(ReviewDesign::getXqNumber,reviewRecord.getXqNumber()).eq(ReviewDesign::getKjxqNum,reviewRecord.getKjxqNum()).eq(ReviewDesign::getIttaskNum,reviewRecord.getIttaskNum());
+        List<ReviewDesign> reviewDesigns = reviewDesignService.list(queryWrapper);
+//       if(reviewCodeList != null && reviewCodeList.size()> 1){
+//           throw new JeecgBootException("存在多条记录，检查数据");
+//       }
+        if(CollectionUtil.isNotEmpty(reviewDesigns)){
+            throw new JeecgBootException("已存在评审记录，请勿重复发起");
+        }
+        // 保存当前主表信息
+        ReviewDesign reviewDesign = new ReviewDesign().setXqName(reviewRecord.getXqName())
+                .setKjxqNum(reviewRecord.getKjxqNum()).setIttaskNum(reviewRecord.getIttaskNum())
+                .setXqNumber(reviewRecord.getXqNumber()).setSystems(reviewRecord.getSystems());
+        reviewDesignService.save(reviewDesign);
+
+        ReviewRecord record =  reviewRecordService.getById(reviewRecord.getId());
+        record.setReviewDesign("1");
+        reviewRecordService.updateById(record);
+
+        return reviewDesign;
     }
 }

@@ -1,6 +1,7 @@
 package org.jeecg.modules.review.handle;
 
 import org.jeecg.modules.code.entity.ReviewCode;
+import org.jeecg.modules.design.entity.ReviewDesign;
 import org.jeecg.modules.publish.entity.ReviewPublish;
 import org.jeecg.modules.review.entity.ReviewRecord;
 
@@ -14,4 +15,6 @@ public interface IReviewRecordHandle {
     ReviewCode perCheckCodeReview(ReviewRecord reviewRecord);
 
     ReviewPublish perCheckPublishReview(ReviewRecord reviewRecord);
+
+    ReviewDesign perDesignReview(ReviewRecord reviewRecord);
 }
