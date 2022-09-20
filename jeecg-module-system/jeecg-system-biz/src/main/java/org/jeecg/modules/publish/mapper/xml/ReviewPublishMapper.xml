@@ -2,4 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.publish.mapper.ReviewPublishMapper">
 
+	<delete id="deleteByMainId" parameterType="java.lang.String">
+		DELETE 
+		FROM  kf_review_publish 
+		WHERE
+			 ref_id = #{id} 		
+	</delete>
+	
+	<select id="selectByMainId" parameterType="java.lang.String" resultType="org.jeecg.modules.publish.entity.ReviewPublish">
+		SELECT * 
+		FROM  kf_review_publish
+		WHERE
+			 ref_id = #{id} 		
+	</select>
 </mapper>

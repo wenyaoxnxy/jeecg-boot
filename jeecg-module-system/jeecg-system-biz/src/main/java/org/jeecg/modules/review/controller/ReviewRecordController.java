@@ -15,6 +15,7 @@ import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.code.entity.ReviewCode;
 import org.jeecg.modules.design.entity.ReviewDesign;
 import org.jeecg.modules.publish.entity.ReviewPublish;
+import org.jeecg.modules.publish.entity.ReviewPublishMain;
 import org.jeecg.modules.review.entity.ReviewRecord;
 import org.jeecg.modules.review.handle.IReviewRecordHandle;
 import org.jeecg.modules.review.service.IReviewRecordService;
@@ -194,7 +195,7 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 	 @ApiOperation(value="评审记录登记表-发起代码评审", notes="评审记录登记表-发起代码评审")
 	 @PostMapping(value = "/addPublishReview")
 	 public Result<?> addPublishReview(@RequestBody ReviewRecord reviewRecord) {
-		 ReviewPublish reviewPublish = reviewRecordHandle.perCheckPublishReview(reviewRecord);
+		 ReviewPublishMain reviewPublish = reviewRecordHandle.perCheckPublishReview(reviewRecord);
 		 return Result.OK(reviewPublish);
 	 }
 

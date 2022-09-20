@@ -84,4 +84,8 @@ public class ReviewRecord {
 	@Excel(name = "上线评审", width = 15)
     @ApiModelProperty(value = "上线评审")
 	private String reviewPublish;
+	/**投产日期*/
+	@Excel(name = "投产日期", width = 15)
+	@ApiModelProperty(value = "投产日期")
+	private String versionplan;
 }

@@ -14,8 +14,10 @@ import org.jeecg.modules.design.entity.ReviewDesign;
 import org.jeecg.modules.design.service.IReviewDesignService;
 import org.jeecg.modules.publish.entity.ReviewPublish;
 import org.jeecg.modules.publish.entity.ReviewPublishChecklistResult;
+import org.jeecg.modules.publish.entity.ReviewPublishMain;
 import org.jeecg.modules.publish.service.IReviewPublishChecklistResultService;
 import org.jeecg.modules.publish.service.IReviewPublishDetailService;
+import org.jeecg.modules.publish.service.IReviewPublishMainService;
 import org.jeecg.modules.publish.service.IReviewPublishService;
 import org.jeecg.modules.review.entity.ReviewRecord;
 import org.jeecg.modules.review.handle.IReviewRecordHandle;
@@ -55,6 +57,9 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
 
     @Autowired
     private ICodeReviewChecklistRulesService codeReviewChecklistRulesService;
+
+    @Autowired
+    private IReviewPublishMainService reviewPublishMainService;
 
     @Autowired
     private IReviewPublishService reviewPublishService;
@@ -109,28 +114,37 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
 
     @Override
     @Transactional
-    public ReviewPublish perCheckPublishReview(ReviewRecord reviewRecord) {
-        if(StringUtils.isAnyEmpty(reviewRecord.getXqNumber(),reviewRecord.getKjxqNum(),reviewRecord.getIttaskNum())){
-            throw new JeecgBootException("输入需求内容为空");
+    public ReviewPublishMain perCheckPublishReview(ReviewRecord reviewRecord) {
+        if(StringUtils.isAnyEmpty(reviewRecord.getSystems(),reviewRecord.getVersionplan())){
+            throw new JeecgBootException("输入系统或者投产时间为空");
         }
-        QueryWrapper<ReviewPublish> queryWrapper = new QueryWrapper<ReviewPublish>();
-        queryWrapper.lambda().eq(ReviewPublish::getXqNumber,reviewRecord.getXqNumber()).eq(ReviewPublish::getKjxqNum,reviewRecord.getKjxqNum()).eq(ReviewPublish::getIttaskNum,reviewRecord.getIttaskNum());
-        List<ReviewPublish> reviewPublishes = reviewPublishService.list(queryWrapper);
+        QueryWrapper<ReviewPublishMain> queryWrapper = new QueryWrapper<ReviewPublishMain>();
+        queryWrapper.lambda().eq(ReviewPublishMain::getSystems,reviewRecord.getSystems()).eq(ReviewPublishMain::getVersionplan,reviewRecord.getVersionplan());
+        List<ReviewPublishMain> reviewPublishes = reviewPublishMainService.list(queryWrapper);
 //       if(reviewCodeList != null && reviewCodeList.size()> 1){
 //           throw new JeecgBootException("存在多条记录，检查数据");
 //       }
         if(CollectionUtil.isNotEmpty(reviewPublishes)){
-            throw new JeecgBootException("已存在评审记录，请勿重复发起");
+            throw new JeecgBootException("当前系统、当前投产日期存在评审记录，请勿重复发起");
         }
         // 保存当前主表信息
-        ReviewPublish reviewPublish = new ReviewPublish().setXqName(reviewRecord.getXqName())
-                .setKjxqNum(reviewRecord.getKjxqNum()).setIttaskNum(reviewRecord.getIttaskNum())
-                .setXqNumber(reviewRecord.getXqNumber()).setSystems(reviewRecord.getSystems());
-        reviewPublishService.save(reviewPublish);
+        ReviewPublishMain reviewPublishMain = new ReviewPublishMain().setSystems(reviewRecord.getSystems())
+                .setVersionplan(reviewRecord.getVersionplan());
+        reviewPublishMainService.save(reviewPublishMain);
+        //保存当前查询出来的需求列表
+        QueryWrapper<ReviewRecord> queryRecordWrapper = new QueryWrapper<ReviewRecord>();
+        queryRecordWrapper.lambda().eq(ReviewRecord::getSystems,reviewRecord.getSystems()).eq(ReviewRecord::getVersionplan,reviewRecord.getVersionplan());
+        List<ReviewRecord> reviewRecordList = reviewRecordService.list(queryRecordWrapper);
+        for (ReviewRecord record:reviewRecordList) {
+            ReviewPublish publish = new ReviewPublish().setRefId(reviewPublishMain.getId())
+                    .setSystems(reviewPublishMain.getSystems()).setXqNumber(record.getXqNumber())
+                    .setXqName(record.getXqName()).setKjxqNum(record.getKjxqNum()).setIttaskNum(record.getIttaskNum());
+            reviewPublishService.save(publish);
+        }
         //保存当前评审记录模板内容
         List<PublishReviewChecklistRules> checklistRules = publishReviewChecklistRulesService.list();
         for (PublishReviewChecklistRules rules:checklistRules) {
-            ReviewPublishChecklistResult result = new ReviewPublishChecklistResult().setRefId(reviewPublish.getId()).setCheckGroup(rules.getCheckGroup())
+            ReviewPublishChecklistResult result = new ReviewPublishChecklistResult().setRefId(reviewPublishMain.getId()).setCheckGroup(rules.getCheckGroup())
                     .setCheckTitle(rules.getCheckTitle()).setSeqNo(rules.getSeqNo()).setCheckContent(rules.getCheckContent());
             reviewPublishChecklistResultService.save(result);
         }
@@ -139,7 +153,7 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
         record.setReviewPublish("1");
         reviewRecordService.updateById(record);
 
-        return reviewPublish;
+        return reviewPublishMain;
     }
 
     @Override
