@@ -1,8 +1,6 @@
 package org.jeecg.modules.rules.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -14,7 +12,6 @@ import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.rules.entity.PublishReviewChecklistRules;
 import org.jeecg.modules.rules.service.IPublishReviewChecklistRulesService;
-import java.util.Date;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -65,9 +62,13 @@ public class PublishReviewChecklistRulesController extends JeecgController<Publi
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<PublishReviewChecklistRules> queryWrapper = QueryGenerator.initQueryWrapper(publishReviewChecklistRules, req.getParameterMap());
+
+		Map<String, String[]> newParameterMap = new HashMap(req.getParameterMap());
+		newParameterMap.remove("order");
+
+		QueryWrapper<PublishReviewChecklistRules> queryWrapper = QueryGenerator.initQueryWrapper(publishReviewChecklistRules, newParameterMap);
 		Page<PublishReviewChecklistRules> page = new Page<PublishReviewChecklistRules>(pageNo, pageSize);
-		queryWrapper.orderByAsc("check_group","seq_no");
+		queryWrapper.orderByAsc(Arrays.asList("check_group","seq_no","create_time"));
 		IPage<PublishReviewChecklistRules> pageList = publishReviewChecklistRulesService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}

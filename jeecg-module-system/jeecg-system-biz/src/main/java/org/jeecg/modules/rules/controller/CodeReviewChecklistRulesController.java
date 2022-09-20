@@ -62,7 +62,9 @@ public class CodeReviewChecklistRulesController extends JeecgController<CodeRevi
 								   @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 								   @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 								   HttpServletRequest req) {
-		QueryWrapper<CodeReviewChecklistRules> queryWrapper = QueryGenerator.initQueryWrapper(codeReviewChecklistRules, req.getParameterMap());
+		Map<String, String[]> newParameterMap = new HashMap(req.getParameterMap());
+		newParameterMap.remove("order");
+		QueryWrapper<CodeReviewChecklistRules> queryWrapper = QueryGenerator.initQueryWrapper(codeReviewChecklistRules, newParameterMap);
 		Page<CodeReviewChecklistRules> page = new Page<CodeReviewChecklistRules>(pageNo, pageSize);
 		queryWrapper.orderByAsc("check_group","seq_no");
 		IPage<CodeReviewChecklistRules> pageList = codeReviewChecklistRulesService.page(page, queryWrapper);

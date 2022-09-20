@@ -165,7 +165,6 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
         ReviewRecord record =  reviewRecordService.getById(reviewRecord.getId());
         record.setReviewDesign("1");
         reviewRecordService.updateById(record);
-
         return reviewDesign;
     }
 }
