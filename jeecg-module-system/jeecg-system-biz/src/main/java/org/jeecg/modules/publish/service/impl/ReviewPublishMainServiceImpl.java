@@ -1,5 +1,6 @@
 package org.jeecg.modules.publish.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.publish.entity.ReviewPublishMain;
 import org.jeecg.modules.publish.entity.ReviewPublish;
 import org.jeecg.modules.publish.entity.ReviewPublishDetail;
@@ -9,6 +10,8 @@ import org.jeecg.modules.publish.mapper.ReviewPublishDetailMapper;
 import org.jeecg.modules.publish.mapper.ReviewPublishChecklistResultMapper;
 import org.jeecg.modules.publish.mapper.ReviewPublishMainMapper;
 import org.jeecg.modules.publish.service.IReviewPublishMainService;
+import org.jeecg.modules.review.entity.ReviewRecord;
+import org.jeecg.modules.review.service.IReviewRecordService;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,8 @@ public class ReviewPublishMainServiceImpl extends ServiceImpl<ReviewPublishMainM
 	private ReviewPublishDetailMapper reviewPublishDetailMapper;
 	@Autowired
 	private ReviewPublishChecklistResultMapper reviewPublishChecklistResultMapper;
-	
+	@Autowired
+	private IReviewRecordService reviewRecordService;
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void saveMain(ReviewPublishMain reviewPublishMain, List<ReviewPublish> reviewPublishList,List<ReviewPublishDetail> reviewPublishDetailList,List<ReviewPublishChecklistResult> reviewPublishChecklistResultList) {
@@ -81,6 +85,16 @@ public class ReviewPublishMainServiceImpl extends ServiceImpl<ReviewPublishMainM
 			//外键设置
 			entity.setRefId(reviewPublishMain.getId());
 			reviewPublishChecklistResultMapper.insert(entity);
+		}
+
+		//更新主评审记录表为已完成
+		QueryWrapper<ReviewRecord> queryWrapper = new QueryWrapper<ReviewRecord>();
+		queryWrapper.lambda().eq(ReviewRecord::getSystems,reviewPublishMain.getSystems()).eq(ReviewRecord::getVersionplan,reviewPublishMain.getVersionplan());
+
+		List<ReviewRecord> record = reviewRecordService.list(queryWrapper);
+		for (ReviewRecord reviewRecord:record) {
+			reviewRecord.setReviewPublish("2");
+			reviewRecordService.updateById(reviewRecord);
 		}
 	}
 
