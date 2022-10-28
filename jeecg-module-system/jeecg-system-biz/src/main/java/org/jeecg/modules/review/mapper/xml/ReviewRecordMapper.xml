@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.jeecg.modules.review.mapper.ReviewRecordMapper">
+    <select id="selectNeedReviewCode" parameterType="java.lang.String" resultType="org.jeecg.modules.review.vo.ReviewPushVO">
+        select systems, GROUP_CONCAT(DISTINCT xq_name ORDER BY xq_name) as xqnames
+        from kf_review_record a where a.versionplan=#{planVersion}
+        and a.review_code in ('0','1') and
+        a.systems in (select item_value from sys_dict_item a where a.dict_id='1562738293878190081' and description='平台研发中心')
+        GROUP BY systems
+    </select>
 
+    <select id="selectNeedReviewPublish" parameterType="java.lang.String" resultType="org.jeecg.modules.review.vo.ReviewPushVO">
+        select systems, GROUP_CONCAT(DISTINCT xq_name ORDER BY xq_name) as xqnames
+        from kf_review_record a where a.versionplan=#{planVersion}
+        and a.review_publish in ('0','1') and
+        a.systems in (select item_value from sys_dict_item a where a.dict_id='1562738293878190081' and description='平台研发中心')
+        GROUP BY systems
+    </select>
 </mapper>

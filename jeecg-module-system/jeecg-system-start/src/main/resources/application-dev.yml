@@ -146,6 +146,17 @@ spring:
     host: jeecg-boot-redis
     port: 6379
     password: ''
+  #dinger
+  dinger:
+    project-id: 评审通知
+    dingers:
+      # 使用钉钉机器人, 请根据自己机器人配置信息进行修改
+      dingtalk:
+        #推送
+        #tokenId: ca0c0522d9d788d66654018115d10fb6ed6984d9405ad0b2b7994306dbc660fe
+        # 平台研发
+        tokenId: d9a70290dcb354d8397473297e2decfd56e5914063d1e73f5f00fe1cb422f035
+        secret: xxx
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/modules/**/xml/*Mapper.xml

@@ -99,6 +99,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/sys/getQrcodeToken/**", "anon"); //监听扫码
         filterChainDefinitionMap.put("/sys/checkAuth", "anon"); //授权接口排除
 
+        //授权单独的接口
+        filterChainDefinitionMap.put("/review/reviewRecord/reviewInfoPush", "anon"); //授权接口排除
 
         filterChainDefinitionMap.put("/", "anon");
         filterChainDefinitionMap.put("/doc.html", "anon");

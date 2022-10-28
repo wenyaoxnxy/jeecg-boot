@@ -213,4 +213,18 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 		 return Result.OK(reviewDesign);
 	 }
 
+	 /**
+	  * 评审信息推送
+	  *
+	  * @param reviewInfoPush
+	  * @return
+	  */
+	 @AutoLog(value = "评审记录登记表-发起概设评审")
+	 @ApiOperation(value="评审记录登记表-发起概设评审", notes="评审记录登记表-发起概设评审")
+	 @PostMapping(value = "/reviewInfoPush")
+	 public Result<?> reviewInfoPush(@RequestParam(name="versionPlan",required=true) String versionPlan) {
+		 reviewRecordHandle.reviewInfoPush(versionPlan);
+		 return Result.OK();
+	 }
+
 }

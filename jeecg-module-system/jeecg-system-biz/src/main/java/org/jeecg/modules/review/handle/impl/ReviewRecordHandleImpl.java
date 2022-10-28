@@ -3,6 +3,7 @@ package org.jeecg.modules.review.handle.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.code.entity.ReviewCode;
@@ -22,6 +23,7 @@ import org.jeecg.modules.publish.service.IReviewPublishService;
 import org.jeecg.modules.review.entity.ReviewRecord;
 import org.jeecg.modules.review.handle.IReviewRecordHandle;
 import org.jeecg.modules.review.service.IReviewRecordService;
+import org.jeecg.modules.review.vo.ReviewPushVO;
 import org.jeecg.modules.rules.entity.CodeReviewChecklistRules;
 import org.jeecg.modules.rules.entity.PublishReviewChecklistRules;
 import org.jeecg.modules.rules.service.ICodeReviewChecklistRulesService;
@@ -76,6 +78,8 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
     @Autowired
     private IReviewDesignService reviewDesignService;
 
+    @Autowired
+    private DingerSender dingerSender;
 
     @Override
     @Transactional
@@ -180,5 +184,45 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
         record.setReviewDesign("1");
         reviewRecordService.updateById(record);
         return reviewDesign;
+    }
+
+    @Override
+    public void reviewInfoPush(String versionPlan) {
+
+        if(StringUtils.isBlank(versionPlan)){
+            throw new JeecgBootException("输入上线日期为空");
+        }
+        // 推送代码评审
+        List<ReviewPushVO> pushList = reviewRecordService.selectNeedReviewCode(versionPlan);
+
+        StringBuffer pushText = new StringBuffer();
+        if(CollectionUtils.isEmpty(pushList)){
+           pushText.append("真棒！").append(versionPlan).append("日投产需求，均完成代码评审。");
+        }else {
+            pushText.append("待代码评审需求\n");
+            for (ReviewPushVO reviewPush:pushList) {
+                pushText.append("【").append(reviewPush.getSystems()).append("】:").append(reviewPush.getXqnames()).append("\n");
+            }
+        }
+        dingerSender.send(MessageSubType.TEXT,
+                DingerRequest.request(pushText.toString())
+        );
+
+        // 推送上线评审
+        List<ReviewPushVO> pushPublishList = reviewRecordService.selectNeedReviewPublish(versionPlan);
+
+        StringBuffer pushPublishText = new StringBuffer();
+        if(CollectionUtils.isEmpty(pushPublishList)){
+            pushPublishText.append("真棒！").append(versionPlan).append("日投产需求，均完成上线评审。");
+        }else {
+            pushPublishText.append("待上线评审需求\n");
+            for (ReviewPushVO reviewPush:pushPublishList) {
+                pushPublishText.append("【").append(reviewPush.getSystems()).append("】:").append(reviewPush.getXqnames()).append("\n");
+            }
+        }
+        dingerSender.send(MessageSubType.TEXT,
+                DingerRequest.request(pushPublishText.toString())
+        );
+
     }
 }

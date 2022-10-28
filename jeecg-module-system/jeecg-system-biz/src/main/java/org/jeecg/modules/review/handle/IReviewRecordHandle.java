@@ -17,4 +17,6 @@ public interface IReviewRecordHandle {
     ReviewPublishMain perCheckPublishReview(ReviewRecord reviewRecord);
 
     ReviewDesign perDesignReview(ReviewRecord reviewRecord);
+
+    void reviewInfoPush(String versionPlan);
 }
