@@ -105,7 +105,9 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
                .setXqNumber(reviewRecord.getXqNumber()).setSystemName(reviewRecord.getSystems());
         reviewCodeService.save(reviewCode);
         //保存当前评审记录模板内容
-        List<CodeReviewChecklistRules> checklistRules = codeReviewChecklistRulesService.list();
+        QueryWrapper<CodeReviewChecklistRules> queryWrapperRules = new QueryWrapper<CodeReviewChecklistRules>();
+        queryWrapperRules.lambda().like(CodeReviewChecklistRules::getNote,reviewRecord.getSystems());
+        List<CodeReviewChecklistRules> checklistRules = codeReviewChecklistRulesService.list(queryWrapperRules);
         for (CodeReviewChecklistRules rules:checklistRules) {
             ReviewCodeChecklistResult result = new ReviewCodeChecklistResult().setRefId(reviewCode.getId()).setCheckGroup(rules.getCheckGroup())
                     .setCheckTitle(rules.getCheckTitle()).setSeqNo(rules.getSeqNo()).setCheckContent(rules.getCheckContent());
@@ -149,7 +151,9 @@ public class ReviewRecordHandleImpl implements IReviewRecordHandle {
             reviewPublishService.save(publish);
         }
         //保存当前评审记录模板内容
-        List<PublishReviewChecklistRules> checklistRules = publishReviewChecklistRulesService.list();
+        QueryWrapper<PublishReviewChecklistRules> queryWrapperRules = new QueryWrapper<PublishReviewChecklistRules>();
+        queryWrapperRules.lambda().like(PublishReviewChecklistRules::getNote,reviewRecord.getSystems());
+        List<PublishReviewChecklistRules> checklistRules = publishReviewChecklistRulesService.list(queryWrapperRules);
         for (PublishReviewChecklistRules rules:checklistRules) {
             ReviewPublishChecklistResult result = new ReviewPublishChecklistResult().setRefId(reviewPublishMain.getId()).setCheckGroup(rules.getCheckGroup())
                     .setCheckTitle(rules.getCheckTitle()).setSeqNo(rules.getSeqNo()).setCheckContent(rules.getCheckContent());
