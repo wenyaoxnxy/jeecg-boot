@@ -188,7 +188,7 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 	 /**
 	  * 发起上线评审
 	  *
-	  * @param addPublishReview
+	  * @param reviewRecord
 	  * @return
 	  */
 	 @AutoLog(value = "评审记录登记表-发起上线评审")
@@ -202,7 +202,7 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 	 /**
 	  * 发起概设评审
 	  *
-	  * @param addDesignReview
+	  * @param reviewRecord
 	  * @return
 	  */
 	 @AutoLog(value = "评审记录登记表-发起概设评审")
@@ -216,7 +216,7 @@ public class ReviewRecordController extends JeecgController<ReviewRecord, IRevie
 	 /**
 	  * 评审信息推送
 	  *
-	  * @param reviewInfoPush
+	  * @param versionPlan
 	  * @return
 	  */
 	 @AutoLog(value = "评审记录登记表-评审信息推送")
